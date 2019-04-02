@@ -27,8 +27,6 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 
   socket.on('enregistrementScore', function(data) {
-    console.log(data);
     scoreJoueurs.push(data);
-    console.log(scoreJoueurs);
   });
 });

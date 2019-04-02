@@ -47,21 +47,6 @@ window.addEventListener('DOMContentLoaded', function() {
       scoreDesJoueurs: scoreJoueurs
     }
   }])
-  // .factory('socket', [function() {
-  //   let protocol = 'http://';
-  //   let hostname = 'localhost';
-  //   let port = ':2000';
-  //   // var socket = io(protocol + hostname + port);
-  //   var socket = io.connect();
-  //   console.log(`Connexion WebSocket établie depuis le client`);
-  //   return {
-  //     on: function(evenement, callback) {
-  //       socket.on(evenement, function() {
-
-  //       })
-  //     }
-  //   }
-  // }])
   .controller('ControllerAffichagePages', ['serviceStatutPages', function(donneesServiceStatutPages) {
     this.statutPages = donneesServiceStatutPages.statutDesPages;
     this.afficherPage = function(page, nombreDeJoueurs) {
