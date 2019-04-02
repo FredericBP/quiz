@@ -1,0 +1,46 @@
+form[name="configJoueur"] {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 960px;
+  
+  label {
+    background-color: $color3;
+    border: 5px solid $color3;
+    color: $color1;
+    font-size: 1.5em;
+    padding: 2%;
+    text-align: center;
+    width: 80%;
+
+    span {
+      font-size: 0.8em;
+    }
+  }
+
+  input,
+  select {
+    border: 5px solid $color3;
+    box-sizing: content-box;
+    font-size: 1.5em;
+    padding: 2%;
+    margin-bottom: 30px;
+    width: 80%;
+  }
+
+  input[type="submit"] {
+    background-color: $color3;
+    color: $color1;
+    cursor: pointer;
+    width: 150px;
+  }
+
+  input[type="submit"]:hover {
+    background-color: $color1;
+    color: $color3;
+    cursor: pointer;
+    width: 150px;
+  }
+}

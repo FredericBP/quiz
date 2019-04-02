@@ -1,0 +1,61 @@
+.avatar {
+  display: inline-block;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  width: 200px;
+}
+
+.avatar1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.avatar2 {
+  position: absolute;
+  top: 0;
+  left: -200px;
+}
+
+.avatar3 {
+  position: absolute;
+  top: 0;
+  left: -400px;
+}
+
+.avatar4 {
+  position: absolute;
+  top: -200px;
+  left: 0;
+}
+
+.avatar5 {
+  position: absolute;
+  top: -200px;
+  left: -200px;
+}
+
+.avatar6 {
+  position: absolute;
+  top: -200px;
+  left: -400px;
+}
+
+.avatar7 {
+  position: absolute;
+  top: -400px;
+  left: 0;
+}
+
+.avatar8 {
+  position: absolute;
+  top: -400px;
+  left: -200px;
+}
+
+.avatar9 {
+  position: absolute;
+  top: -400px;
+  left: -400px;
+}

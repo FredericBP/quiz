@@ -1,0 +1,55 @@
+#profilsDesJoueurs {
+  display: flex;
+  justify-content: space-between;
+}
+
+#profilJoueur {
+  background-color: $color3;
+  color: $color1;
+  width: 150px;
+
+  .avatar {
+    height: 100px;
+    width: 100px;
+
+    img {
+      width: 300px;
+    }
+  }
+
+  ul {
+    margin: 0;
+  }
+  
+  li {
+    list-style-type: none;
+    padding: 5px;
+  }
+}
+
+#profilJoueurAdverse {
+  background-color: $color3;
+  color: $color1;
+  width: 150px;
+
+  .avatar {
+    position: relative;
+    right: -45px;
+    height: 100px;
+    width: 100px;
+
+    img {
+      width: 300px;
+    }
+  }
+
+  ul {
+    margin: 0;
+  }
+  
+  li {
+    list-style-type: none;
+    padding: 5px;
+    text-align: right;
+  }
+}

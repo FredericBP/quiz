@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>POP CULTURE QUIZ BATTLE</title>
+    <link rel="icon" type="image/png" href="public/img/favicon.ico">
+
+    <!-- INITIALISATION DE FONT AWESOME-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    
+    <!-- INITIALISATION DU FICHIER CSS-->
+    <link rel="stylesheet" href="assets/styles/styles.css">
+    
+    <!-- INITIALISATION DES FICHIERS JAVASCRIPT-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-i18n/1.7.8/angular-locale_fr-fr.js"></script>
+    <script src="assets/scripts/main.js"></script>
+    <script src="assets/scripts/module.websocket.js"></script>
+    <script src="assets/scripts/module.global.js"></script>
+
+    <!-- INITIALISATION DE SOCKET.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  </head>
+  <body ng-controller="ControllerAffichagePages as initPages">
+
+    <!-- BOUTON MENU IN-GAME-->
+    <div ng-if="!initPages.statutPages.pageAccueil" ng-click="initPages.ouvrirMenuInGame()" id="boutonMenuInGame">
+      <i class="ng-class: initPages.statutBoutonMenuInGame"></i>
+    </div>
+    
+    <!-- MENU IN-GAME-->
+    <header id="menuInGame" class="ng-class: initPages.statutMenuInGame">
+      <img src="public/img/logo.png" alt="POP CULTURE QUIZ BATTLE">
+      <nav>
+        <ul>
+          <li ng-click="initPages.afficherPage('pageAccueil')">Accueil</li>
+          <li ng-click="initPages.afficherPage('pageConfigurationJoueur', 1)">Entrainement solo</li>
+          <li ng-click="initPages.afficherPage('pageConfigurationJoueur', 1)">Match à deux joueurs</li>
+          <li ng-click="initPages.afficherPage('pageScoresDesJoueurs')">Records des joueurs</li>
+          <li ng-click="initPages.afficherPage('pageCredits')">Crédits</li>
+        </ul>
+      </nav>
+    <div ng-if="!initPages.statutPages.pageAccueil">
+    </div>
+  </header>
+
+  <main class="container">
+      <!-- PAGE D'ACCUEIL AVEC LE MENU PRINCIPAL-->
+      <div app-accueil ng-if="initPages.statutPages.pageAccueil" id="menuPageAccueil">
+        <img src="public/img/logo.png" alt="POP CULTURE QUIZ BATTLE">
+        <nav>
+          <div ng-click="initPages.afficherPage('pageChoixTheme', 1)">
+            <div id="boutonMenuPrincipal1"><img src="public/img/bouton.png"></div>
+            <p>Entrainement solo</p>
+          </div>
+          <div ng-click="initPages.afficherPage('pageChoixTheme', 2)">
+            <div id="boutonMenuPrincipal2"><img src="public/img/bouton.png"></div>
+            <p>Match à deux joueurs</p>
+          </div>
+          <div ng-click="initPages.afficherPage('pageScoresDesJoueurs')">
+            <div id="boutonMenuPrincipal3"><img src="public/img/bouton.png"></div>
+            <p>Records des joueurs</p>
+          </div>
+          <div ng-click="initPages.afficherPage('pageCredits')">
+            <div id="boutonMenuPrincipal4"><img src="public/img/bouton.png"></div>
+            <p>Crédits</p>
+          </div>
+        </nav>
+      </div>
+
+      <!-- PAGE DE CONFIGURATION DU JOUEUR-->
+      <div app-player-config ng-if="initPages.statutPages.pageConfigurationJoueur" ng-controller="ControllerConfigurationJoueur as config">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Configuration du joueur</h2>
+        </div>
+
+        <div id="configProfilJoueur">
+          <div class="avatar"><img class="ng-class: config.avatar" src="public/img/avatars.png" alt="Avatar joueur"></div>
+          <p>{{config.pseudo}}</p>
+        </div>
+
+        <form name="configJoueur" ng-submit="config.validerConfigurationJoueur(configJoueur.$valid)" novalidate>
+          <label for="pseudo">Choix du pseudo<br><span>(Ne doit pas dépasser 16 caractères)</span></label>
+          <input type="text" name="pseudo" ng-minlength="1" ng-maxlength="16" ng-required="true" ng-model="config.pseudo" id="pseudo">
+          <label for="avatar">Choix de l'avatar</label>
+          <select name="avatar" ng-required="true" ng-model="config.avatar" id="avatar">
+            <option value="avatar1">Avatar 1</option>
+            <option value="avatar2">Avatar 2</option>
+            <option value="avatar3">Avatar 3</option>
+            <option value="avatar4">Avatar 4</option>
+            <option value="avatar5">Avatar 5</option>
+            <option value="avatar6">Avatar 6</option>
+            <option value="avatar7">Avatar 7</option>
+            <option value="avatar8">Avatar 8</option>
+            <option value="avatar9">Avatar 9</option>
+          </select>
+          <input type="submit" value="Valider">
+        </form>
+      </div>
+
+      <!-- PAGE CHOIX DU THEME-->
+      <div app-choix-theme ng-if="initPages.statutPages.pageChoixTheme" ng-controller="ControllerChoixTheme as choixTheme">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Choix du thème</h2>
+        </div>
+        <div id="listeThemes">
+          <div ng-click="choixTheme.choisirTheme('Le Seigneur des Anneaux')" class="theme selectionnable">
+            <img src="public/img/lotr-logo.png" alt="Logo le Seigneur des Anneaux">
+          </div>
+          <div class="nouveauxThemes">
+            <i class="fas fa-plus-circle"></i>
+            <p>De nouveaux thèmes arrivront bientôt !</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE QUIZ POUR UN JOUEUR-->
+      <div app-quiz-un-joueur ng-if="initPages.statutPages.pageQuiz" ng-controller="ControllerQuiz as ctrlQuiz">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Quiz {{ctrlQuiz.themeChoisi}}</h2>
+        </div>
+
+        <div id="profilsDesJoueurs">
+          <div id="profilJoueur">
+            <div class="avatar">
+              <img class="ng-class: ctrlQuiz.avatarJoueur" src="public/img/avatars.png" alt="Avatar joueur">
+            </div>
+            <ul>
+              <li>Pseudo : {{ctrlQuiz.joueur.pseudo}}</li>
+              <li>Score : {{ctrlQuiz.joueur.score}}</li>
+            </ul>
+          </div>
+  
+          <div ng-if="ctrlQuiz.pseudoJoueurAdverse" id="profilJoueurAdverse">
+            <div class="avatar">
+              <img class="ng-class: ctrlQuiz.avatarJoueur" src="public/img/avatars.png" alt="Avatar joueur">
+            </div>
+            <ul>
+              <li>Pseudo : {{ctrlQuiz.joueurAdverse.pseudo}}</li>
+              <li>Score : {{ctrlQuiz.joueurAdverse.score}}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="barreDeProgression">
+          <p>Progression de {{ctrlQuiz.joueur.pseudo}}</p>
+          <div>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(1)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(2)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(3)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(4)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(5)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(6)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(7)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(8)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(9)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueur(10)"></i>
+          </div>
+          <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+            <li>10</li>
+          </ul>
+          <div ng-if="ctrlQuiz.pseudoJoueurAdverse">
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(1)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(2)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(3)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(4)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(5)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(6)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(7)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(8)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(9)"></i>
+            <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(10)"></i>
+          </div>
+          <p ng-if="ctrlQuiz.pseudoJoueurAdverse">Progression de {{ctrlQuiz.joueurAdverse.pseudo}}</p>
+        </div>
+
+        <div ng-if="ctrlQuiz.progressionJoueur.question1" class="questionQuiz question{{ctrlQuiz.quiz[0].id}}">
+          <h3>Question {{ctrlQuiz.quiz[0].id}} : {{ctrlQuiz.quiz[0].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(1, 1)">{{ctrlQuiz.quiz[0].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(1, 2)">{{ctrlQuiz.quiz[0].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(1, 3)">{{ctrlQuiz.quiz[0].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(1, 4)">{{ctrlQuiz.quiz[0].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(1, 5)">{{ctrlQuiz.quiz[0].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question2" class="questionQuiz question{{ctrlQuiz.quiz[1].id}}">
+          <h3>Question {{ctrlQuiz.quiz[1].id}} : {{ctrlQuiz.quiz[1].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(2, 1)">{{ctrlQuiz.quiz[1].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(2, 2)">{{ctrlQuiz.quiz[1].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(2, 3)">{{ctrlQuiz.quiz[1].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(2, 4)">{{ctrlQuiz.quiz[1].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(2, 5)">{{ctrlQuiz.quiz[1].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question3" class="questionQuiz question{{ctrlQuiz.quiz[2].id}}">
+          <h3>Question {{ctrlQuiz.quiz[2].id}} : {{ctrlQuiz.quiz[2].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(3, 1)">{{ctrlQuiz.quiz[2].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(3, 2)">{{ctrlQuiz.quiz[2].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(3, 3)">{{ctrlQuiz.quiz[2].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(3, 4)">{{ctrlQuiz.quiz[2].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(3, 5)">{{ctrlQuiz.quiz[2].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question4" class="questionQuiz question{{ctrlQuiz.quiz[3].id}}">
+          <h3>Question {{ctrlQuiz.quiz[3].id}} : {{ctrlQuiz.quiz[3].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(4, 1)">{{ctrlQuiz.quiz[3].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(4, 2)">{{ctrlQuiz.quiz[3].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(4, 3)">{{ctrlQuiz.quiz[3].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(4, 4)">{{ctrlQuiz.quiz[3].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(4, 5)">{{ctrlQuiz.quiz[3].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question5" class="questionQuiz question{{ctrlQuiz.quiz[4].id}}">
+          <h3>Question {{ctrlQuiz.quiz[4].id}} : {{ctrlQuiz.quiz[4].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(5, 1)">{{ctrlQuiz.quiz[4].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(5, 2)">{{ctrlQuiz.quiz[4].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(5, 3)">{{ctrlQuiz.quiz[4].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(5, 4)">{{ctrlQuiz.quiz[4].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(5, 5)">{{ctrlQuiz.quiz[4].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question6" class="questionQuiz question{{ctrlQuiz.quiz[5].id}}">
+          <h3>Question {{ctrlQuiz.quiz[5].id}} : {{ctrlQuiz.quiz[5].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(6, 1)">{{ctrlQuiz.quiz[5].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(6, 2)">{{ctrlQuiz.quiz[5].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(6, 3)">{{ctrlQuiz.quiz[5].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(6, 4)">{{ctrlQuiz.quiz[5].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(6, 5)">{{ctrlQuiz.quiz[5].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question7" class="questionQuiz question{{ctrlQuiz.quiz[6].id}}">
+          <h3>Question {{ctrlQuiz.quiz[6].id}} : {{ctrlQuiz.quiz[6].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(7, 1)">{{ctrlQuiz.quiz[6].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(7, 2)">{{ctrlQuiz.quiz[6].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(7, 3)">{{ctrlQuiz.quiz[6].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(7, 4)">{{ctrlQuiz.quiz[6].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(7, 5)">{{ctrlQuiz.quiz[6].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question8" class="questionQuiz question{{ctrlQuiz.quiz[7].id}}">
+          <h3>Question {{ctrlQuiz.quiz[7].id}} : {{ctrlQuiz.quiz[7].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(8, 1)">{{ctrlQuiz.quiz[7].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(8, 2)">{{ctrlQuiz.quiz[7].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(8, 3)">{{ctrlQuiz.quiz[7].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(8, 4)">{{ctrlQuiz.quiz[7].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(8, 5)">{{ctrlQuiz.quiz[7].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question9" class="questionQuiz question{{ctrlQuiz.quiz[8].id}}">
+          <h3>Question {{ctrlQuiz.quiz[8].id}} : {{ctrlQuiz.quiz[8].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(9, 1)">{{ctrlQuiz.quiz[8].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(9, 2)">{{ctrlQuiz.quiz[8].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(9, 3)">{{ctrlQuiz.quiz[8].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(9, 4)">{{ctrlQuiz.quiz[8].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(9, 5)">{{ctrlQuiz.quiz[8].reponse5}}</button>
+          </div>
+        </div>
+        <div ng-if="ctrlQuiz.progressionJoueur.question10" class="questionQuiz question{{ctrlQuiz.quiz[9].id}}">
+          <h3>Question {{ctrlQuiz.quiz[9].id}} : {{ctrlQuiz.quiz[9].question}}</h3>
+          <div>
+            <button ng-click="ctrlQuiz.validerReponse(10, 1)">{{ctrlQuiz.quiz[9].reponse1}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(10, 2)">{{ctrlQuiz.quiz[9].reponse2}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(10, 3)">{{ctrlQuiz.quiz[9].reponse3}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(10, 4)">{{ctrlQuiz.quiz[9].reponse4}}</button>
+            <button ng-click="ctrlQuiz.validerReponse(10, 5)">{{ctrlQuiz.quiz[9].reponse5}}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE SCORES DES JOUEURS-->
+      <div app-scores-joueurs ng-if="initPages.statutPages.pageScoresDesJoueurs" ng-controller="ControllerScoreDesJoueurs as ctrlScore">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Score des joueurs</h2>
+        </div>
+        <table id="tableauDesScores">
+          <tr>
+            <th>Date</th>
+            <th>Pseudo</th>
+            <th>Score</th>
+          </tr>
+          <tr ng-repeat="scoreJoueur in ctrlScore.scoreDesJoueurs">
+            <td>{{scoreJoueur.date | date: 'dd/MM/yyyy HH:mm'}}</td>
+            <td>{{scoreJoueur.pseudo}}</td>
+            <td>{{scoreJoueur.score}}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- PAGE CREDITS-->
+      <div app-scores-joueurs ng-if="initPages.statutPages.pageCredits">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Crédits</h2>
+        </div>
+        <div id="credits">
+          <h3>Jeu développé avec</h3>
+          <div>
+            <img src="public/img/logo-angularjs.png" alt="Logo AngularJS">
+            <img src="public/img/logo-nodejs.png" alt="Logo Node.js">
+            <img src="public/img/logo-socket-io.png" alt="Logo Socket.io">
+          </div>
+          <p>Auteur : Frédéric DE BENGY</p>
+          <p>Avatars : <a href="https://www.freepik.com/free-vector/animal-avatars_766618.htm">www.freepik.com</a></p>
+          <p>Icones : <a href="https://fontawesome.com">Font Awesome</a></p>
+          <h3>Dépôt GitHub</h3>
+          <div>
+            <img src="public/img/logo-github.png" alt="Logo GitHub">
+          </div>
+          <p><a href="https://github.com/FredericBP/quiz">github.com/FredericBP/quiz</a></p>
+        </div>
+      </div>
+    </main>
+
+    <!-- CREDITS-->
+    <footer ng-if="initPages.statutPages.pageAccueil">
+      <p>&copy; 2019 Frédéric DE BENGY - Tous droits réservés</p>
+    </footer>
+
+  </body>
+</html>

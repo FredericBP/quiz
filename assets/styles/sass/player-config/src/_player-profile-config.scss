@@ -1,0 +1,13 @@
+#configProfilJoueur {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 960px;
+
+  p {
+    font-size: 2em;
+    min-height: 50px;
+  }
+}
