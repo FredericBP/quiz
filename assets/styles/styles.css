@@ -473,14 +473,14 @@ ul {
 
 /* ECRAN DE CONFIGURATION DU JOUEUR */
 /* APERCU DU PROFIL DU JOUEUR */
-#configProfilJoueur {
+.configProfilJoueur {
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   margin: 0 auto;
   max-width: 960px; }
-  #configProfilJoueur p {
+  .configProfilJoueur p {
     font-size: 2em;
     min-height: 50px; }
 

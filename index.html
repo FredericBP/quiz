@@ -62,13 +62,30 @@
           </div>
           <div ng-click="initPages.afficherPage('pageScoresDesJoueurs')">
             <div id="boutonMenuPrincipal3"><img src="public/img/bouton.png"></div>
-            <p>Records des joueurs</p>
+            <p>Records</p>
           </div>
           <div ng-click="initPages.afficherPage('pageCredits')">
             <div id="boutonMenuPrincipal4"><img src="public/img/bouton.png"></div>
             <p>Crédits</p>
           </div>
         </nav>
+      </div>
+
+      <!-- PAGE CHOIX DU THEME-->
+      <div app-choix-theme ng-if="initPages.statutPages.pageChoixTheme" ng-controller="ControllerChoixTheme as choixTheme">
+        <div class="titrePage">
+          <img src="public/img/titre.png">
+          <h2>Choix du thème</h2>
+        </div>
+        <div id="listeThemes">
+          <div ng-click="choixTheme.choisirTheme('Le Seigneur des Anneaux')" class="theme selectionnable">
+            <img src="public/img/lotr-logo.png" alt="Logo le Seigneur des Anneaux">
+          </div>
+          <div class="nouveauxThemes">
+            <i class="fas fa-plus-circle"></i>
+            <p>De nouveaux thèmes arrivront bientôt !</p>
+          </div>
+        </div>
       </div>
 
       <!-- PAGE DE CONFIGURATION DU JOUEUR-->
@@ -78,7 +95,7 @@
           <h2>Configuration du joueur</h2>
         </div>
 
-        <div id="configProfilJoueur">
+        <div class="configProfilJoueur">
           <div class="avatar"><img class="ng-class: config.avatar" src="public/img/avatars.png" alt="Avatar joueur"></div>
           <p>{{config.pseudo}}</p>
         </div>
@@ -102,25 +119,24 @@
         </form>
       </div>
 
-      <!-- PAGE CHOIX DU THEME-->
-      <div app-choix-theme ng-if="initPages.statutPages.pageChoixTheme" ng-controller="ControllerChoixTheme as choixTheme">
+      <!-- PAGE DE RECHERCHE D'UN ADVERSAIRE -->
+      <div app-matchmaking ng-if="initPages.statutPages.pageMatchmaking" ng-controller="ControllerConfigurationJoueur as config">
         <div class="titrePage">
           <img src="public/img/titre.png">
-          <h2>Choix du thème</h2>
+          <h2>Recherche d'un adversaire</h2>
         </div>
-        <div id="listeThemes">
-          <div ng-click="choixTheme.choisirTheme('Le Seigneur des Anneaux')" class="theme selectionnable">
-            <img src="public/img/lotr-logo.png" alt="Logo le Seigneur des Anneaux">
-          </div>
-          <div class="nouveauxThemes">
-            <i class="fas fa-plus-circle"></i>
-            <p>De nouveaux thèmes arrivront bientôt !</p>
-          </div>
+
+        <div class="configProfilJoueur">
+          <div class="avatar"><img class="ng-class: config.avatar" src="public/img/avatars.png" alt="Avatar joueur"></div>
+          <p>{{config.pseudo}}</p>
         </div>
+
+        <p>Merci de patienter le temps qu'un adversaire arrive !</p>
+
       </div>
 
-      <!-- PAGE QUIZ POUR UN JOUEUR-->
-      <div app-quiz-un-joueur ng-if="initPages.statutPages.pageQuiz" ng-controller="ControllerQuiz as ctrlQuiz">
+      <!-- PAGE QUIZ -->
+      <div app-quiz ng-if="initPages.statutPages.pageQuiz" ng-controller="ControllerQuiz as ctrlQuiz">
         <div class="titrePage">
           <img src="public/img/titre.png">
           <h2>Quiz {{ctrlQuiz.themeChoisi}}</h2>
@@ -129,7 +145,7 @@
         <div id="profilsDesJoueurs">
           <div id="profilJoueur">
             <div class="avatar">
-              <img class="ng-class: ctrlQuiz.avatarJoueur" src="public/img/avatars.png" alt="Avatar joueur">
+              <img class="ng-class: ctrlQuiz.joueur.avatar" src="public/img/avatars.png" alt="Avatar joueur">
             </div>
             <ul>
               <li>Pseudo : {{ctrlQuiz.joueur.pseudo}}</li>
@@ -137,9 +153,9 @@
             </ul>
           </div>
   
-          <div ng-if="ctrlQuiz.pseudoJoueurAdverse" id="profilJoueurAdverse">
+          <div ng-if="ctrlQuiz.joueurAdverse.pseudo" id="profilJoueurAdverse">
             <div class="avatar">
-              <img class="ng-class: ctrlQuiz.avatarJoueur" src="public/img/avatars.png" alt="Avatar joueur">
+              <img class="ng-class: ctrlQuiz.joueurAdverse.avatar" src="public/img/avatars.png" alt="Avatar joueur">
             </div>
             <ul>
               <li>Pseudo : {{ctrlQuiz.joueurAdverse.pseudo}}</li>
@@ -174,7 +190,7 @@
             <li>9</li>
             <li>10</li>
           </ul>
-          <div ng-if="ctrlQuiz.pseudoJoueurAdverse">
+          <div ng-if="ctrlQuiz.joueurAdverse.pseudo">
             <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(1)"></i>
             <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(2)"></i>
             <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(3)"></i>
@@ -186,7 +202,7 @@
             <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(9)"></i>
             <i class="ng-class: ctrlQuiz.suivreLaProgressionJoueurAdverse(10)"></i>
           </div>
-          <p ng-if="ctrlQuiz.pseudoJoueurAdverse">Progression de {{ctrlQuiz.joueurAdverse.pseudo}}</p>
+          <p ng-if="ctrlQuiz.joueurAdverse.pseudo">Progression de {{ctrlQuiz.joueurAdverse.pseudo}}</p>
         </div>
 
         <div ng-if="ctrlQuiz.progressionJoueur.question1" class="questionQuiz question{{ctrlQuiz.quiz[0].id}}">
@@ -295,7 +311,7 @@
       <div app-scores-joueurs ng-if="initPages.statutPages.pageScoresDesJoueurs" ng-controller="ControllerScoreDesJoueurs as ctrlScore">
         <div class="titrePage">
           <img src="public/img/titre.png">
-          <h2>Score des joueurs</h2>
+          <h2>Scores des joueurs</h2>
         </div>
         <table id="tableauDesScores">
           <tr>

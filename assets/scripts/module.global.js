@@ -1,4 +1,5 @@
 'use strict';
+
 window.addEventListener('DOMContentLoaded', function() {
   angular.module('moduleGlobal', [])
   .factory('serviceStatutPages', [function() {
@@ -7,7 +8,9 @@ window.addEventListener('DOMContentLoaded', function() {
         pageAccueil: true,
         pageChoixTheme: false,
         pageConfigurationJoueur: false,
+        pageMatchmaking: false,
         pageQuiz: false,
+        pageResultats: false,
         pageScoresDesJoueurs: false,
         pageCredits: false
       },
@@ -53,7 +56,9 @@ window.addEventListener('DOMContentLoaded', function() {
       this.statutPages.pageAccueil = false;
       this.statutPages.pageChoixTheme = false;
       this.statutPages.pageConfigurationJoueur = false;
+      this.statutPages.pageMatchmaking = false;
       this.statutPages.pageQuiz = false;
+      this.statutPages.pageResultats = false;
       this.statutPages.pageScoresDesJoueurs = false;
       this.statutPages.pageCredits = false;
       this.statutPages[page] = true;
@@ -76,12 +81,10 @@ window.addEventListener('DOMContentLoaded', function() {
   .controller('ControllerChoixTheme', ['serviceStatutPages', 'serviceQuiz', function(donneesServiceStatutPages, donneesServiceQuiz) {
     this.choisirTheme = function(theme) {
       quiz.themeChoisi = theme;
-      fonctionSocketIo.emit('choixTheme', quiz);
-      if (donneesServiceQuiz.nombreDeJoueurs === 2) {
-        fonctionSocketIo.on('joueurAdverse');
-      }
+      // fonctionSocketIo.emit('choixTheme', quiz);
       donneesServiceStatutPages.statutDesPages.pageAccueil = false;
       donneesServiceStatutPages.statutDesPages.pageChoixTheme = false;
+      donneesServiceStatutPages.statutDesPages.pageMatchmaking = false;
       donneesServiceStatutPages.statutDesPages.pageQuiz = false;
       donneesServiceStatutPages.statutDesPages.pageScoresDesJoueurs = false;
       donneesServiceStatutPages.statutDesPages.pageCredits = false;
@@ -89,30 +92,52 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }])
   .controller('ControllerConfigurationJoueur', ['serviceStatutPages', function(donneesServiceStatutPages) {
-    this.pseudo = undefined;
-    this.avatar = 'avatar' + Math.floor(Math.random() * 9);
+    this.pseudo = joueur.pseudo;
+    this.avatar = joueur.avatar;
     this.validerConfigurationJoueur = function(valide) {
       if (valide) {
         joueur.pseudo = this.pseudo;
         joueur.avatar = this.avatar;
-        fonctionSocketIo.emit('joueur', joueur);
         donneesServiceStatutPages.statutDesPages.pageAccueil = false;
         donneesServiceStatutPages.statutDesPages.pageChoixTheme = false;
         donneesServiceStatutPages.statutDesPages.pageConfigurationJoueur = false;
+        donneesServiceStatutPages.statutDesPages.pageMatchmaking = false;
+        donneesServiceStatutPages.statutDesPages.pageQuiz = false;
         donneesServiceStatutPages.statutDesPages.pageScoresDesJoueurs = false;
         donneesServiceStatutPages.statutDesPages.pageCredits = false;
-        donneesServiceStatutPages.statutDesPages.pageQuiz = true;
+        if (quiz.nombreDeJoueurs === 2) {
+          donneesServiceStatutPages.statutDesPages.pageMatchmaking = false;
+          donneesServiceStatutPages.statutDesPages.pageQuiz = true;
+          
+          // MATCHMAKING POUR GERER L'ATTENTE JUSQU'A L'ARRIVEE D'UN AUTRE JOUEUR
+          // donneesServiceStatutPages.statutDesPages.pageMatchmaking = true;
+          // let idSetIntervalMatchmaking = setInterval(function() {
+          //   fonctionSocketIo.emit('joueur', joueur);
+          //   if (!joueurAdverse.pseudo) {
+          //     console.log(`Recherche d'un adversaire en cours`);
+          //   } else {
+          //     clearInterval(idSetIntervalMatchmaking);
+          //     console.log(`Arrêt du setInterval`);
+          //     donneesServiceStatutPages.statutDesPages.pageMatchmaking = false;
+          //     donneesServiceStatutPages.statutDesPages.pageQuiz = true;
+          //   }
+          // }, 500);
+        } else {
+          // AFFICHAGE DIRECT DU QUIZ POUR UN JOUEUR
+          donneesServiceStatutPages.statutDesPages.pageQuiz = true;
+        }
       }
     }
   }])
   .controller('ControllerQuiz', ['serviceStatutPages', 'serviceJoueurs', 'serviceQuiz', function(donneesServiceStatutPages, donneesServiceJoueurs, donneesServiceQuiz) {
-    this.joueur = donneesServiceJoueurs.joueur;
-    this.joueurAdverse = donneesServiceJoueurs.joueurAdverse;
-    this.themeChoisi = donneesServiceQuiz.themeChoisi;
+    fonctionSocketIo.on('joueurAdverse');
+    this.joueur = joueur;
+    this.joueurAdverse = joueurAdverse;
+    this.themeChoisi = quiz.themeChoisi;
     this.quiz = donneesServiceQuiz.quiz;
     this.progressionJoueur = donneesServiceQuiz.progressionJoueur;
     this.suivreLaProgressionJoueur = function(numeroQuestion) {
-      fonctionSocketIo.on('joueurAdverse');
+      fonctionSocketIo.emit('joueur', joueur);
       switch (donneesServiceJoueurs.joueur.progression['reponse' + numeroQuestion]) {
         case undefined:
           return 'fas fa-circle'
@@ -126,6 +151,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
     this.suivreLaProgressionJoueurAdverse = function(numeroQuestion) {
+      fonctionSocketIo.emit('joueur', joueur);
       switch (donneesServiceJoueurs.joueurAdverse.progression['reponse' + numeroQuestion]) {
         case undefined:
           return 'fas fa-circle'
@@ -139,6 +165,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
     this.validerReponse = function(numeroQuestion, numeroReponse) {
+      fonctionSocketIo.emit('joueur', joueur);
       if (numeroReponse === donneesServiceQuiz.quiz[numeroQuestion - 1].reponseValide) {
         joueur.progression['reponse' + numeroQuestion] = true;
         joueur.score += 1000;
@@ -154,15 +181,15 @@ window.addEventListener('DOMContentLoaded', function() {
         donneesServiceStatutPages.statutDesPages.pageAccueil = false;
         donneesServiceStatutPages.statutDesPages.pageChoixTheme = false;
         donneesServiceStatutPages.statutDesPages.pageConfigurationJoueur = false;
+        donneesServiceStatutPages.statutDesPages.pageMatchmaking = false;
         donneesServiceStatutPages.statutDesPages.pageQuiz = false;
-        donneesServiceStatutPages.statutDesPages.pageQuizDeuxJoueur = false;
         donneesServiceStatutPages.statutDesPages.pageCredits = false;
         donneesServiceStatutPages.statutDesPages.pageScoresDesJoueurs = true;
       }
     }
   }])
   .controller('ControllerScoreDesJoueurs', ['serviceStatutPages', 'serviceScore', function(donneesServiceStatutPages, donneesServiceScore) {
-    this.scoreDesJoueurs = donneesServiceScore;
+    this.scoreDesJoueurs = donneesServiceScore.scoreDesJoueurs;
   }]);
   angular.bootstrap(window.document, ['moduleGlobal'], { strictDi: true });
 });

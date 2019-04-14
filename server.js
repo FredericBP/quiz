@@ -1,10 +1,18 @@
 'use strict';
+
 // INITIALISATION DES MODULES
 const chalk = require('chalk');
 const modulePath = require('path');
 const moduleFileSystem = require('fs');
 const moduleHTTP = require('http');
 const serveurHTTP = moduleHTTP.createServer();
+
+// INITIALISATION DE LA BASE DE DONNEES
+const mongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+const mongoUrl = 'mongodb://localhost:27017';
+const dbName = 'quiz';
+// const bdd = require('./db/db');
 
 // GESTION DES REQUETES HTTP
 serveurHTTP.on('request', function(requeteHTTP, reponseHTTP) {
@@ -77,17 +85,114 @@ serveurHTTP.on('request', function(requeteHTTP, reponseHTTP) {
 
 // GESTION DES REQUETES SOCKET.IO
 const socketIo = require('socket.io');
-const io = socketIo(serveurHTTP);
-
+const io = socketIo(serveurHTTP).listen(3000);
 
 io.on('connection', function(socket) {
   console.log(chalk.yellow(`Connexion WebSocket établie avec : ` + socket.id));
   
   // DONNEES A RENVOYER
-  let lotrQuiz = require('./db/lotr.json');
-  let joueur;
+  const collectionScores = 'scores';
+  const collectionQuiz = 'lotr';
   let joueurAdverse;
   let scoreJoueurs = [];
+  let quizSeigneurDesAnneaux = [];
+  
+  // RECUPERATION DU QUIZ DU SEIGNEUR DES ANNEAUX DANS LA BASE DE DONNEES
+  mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(erreur, client) {
+    if (erreur) {
+      console.log(chalk.red(`Impossible de se connecter à MongoDB`));
+    } else {
+      let db = client.db(dbName);
+      db.collection(collectionQuiz, {strict: true}, function(erreur, collection) {
+        if (erreur) {
+          console.log(chalk.red(`Impossible de se connecter à la collection ` + collectionQuiz));
+          client.close();
+        } else {
+          let cursor = collection.find();
+          cursor.toArray(function(erreur, documents) {
+            if (erreur) {
+              console.log(chalk.red(`Impossible de parcourir la collection ` + collectionQuiz));
+            } else {
+              for (let i = 0; i < documents.length; i++) {
+                quizSeigneurDesAnneaux.push(documents[i]);
+              }
+              socket.emit('quizSeigneurDesAnneaux', JSON.stringify(quizSeigneurDesAnneaux));
+            }
+            client.close();
+          });
+        }
+      });
+    }
+  });
+
+  // RECUPERATION DES SCORES EXISTANTS DANS LA BASE DE DONNEES
+  mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(erreur, client) {
+    if (erreur) {
+      console.log(chalk.red(`Impossible de se connecter à MongoDB`));
+    } else {
+      let db = client.db(dbName);
+      db.collection(collectionScores, {strict: true}, function(erreur, collection) {
+        if (erreur) {
+          console.log(chalk.red(`Impossible de se connecter à la collection ` + collectionScores));
+          client.close();
+        } else {
+          let cursor = collection.find();
+          cursor.toArray(function(erreur, documents) {
+            if (erreur) {
+              console.log(chalk.red(`Impossible de parcourir la collection ` + collectionScores));
+            } else {
+              for (let i = 0; i < documents.length; i++) {
+                scoreJoueurs.push(documents[i]);
+              }
+              socket.emit('listeScores', JSON.stringify(scoreJoueurs));
+            }
+            client.close();
+          });
+        }
+      });
+    }
+  });
+  
+  // ENREGISTREMENT DU SCORE DU JOUEUR DANS LA BASE DE DONNEES
+  socket.on('enregistrementScore', function(data) {
+    mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(erreur, client) {
+      if (erreur) {
+        console.log(chalk.red(`Impossible de se connecter à MongoDB`));
+      } else {
+        let db = client.db(dbName);
+
+        // INSERTION DU SCORE DANS LA BASE DE DONNEES
+        db.collection(collectionScores).insertOne({
+          pseudo: data.pseudo,
+          score: data.score,
+          date: new Date()
+        }, function(erreur, reponse) {
+          if (erreur) {
+            console.log(chalk.red(`Impossible d'enregistrer le score dans la base de données`));
+          }
+        });
+
+        // AJOUT ET ENVOI DU SCORE DANS UN OBJET VERS LE CLIENT
+        db.collection(collectionScores, {strict: true}, function(erreur, collection) {
+          if (erreur) {
+            console.log(chalk.red(`Impossible de se connecter à la collection ` + collectionScores));
+            client.close();
+          } else {
+            let cursorFind = collection.find();
+            cursorFind.toArray(function(erreur, documents) {
+              if (erreur) {
+                console.log(chalk.red(`Impossible de parcourir la collection ` + collectionScores));
+              } else {
+                scoreJoueurs.push(documents[documents.length - 1]);
+                socket.emit('listeScores', JSON.stringify(scoreJoueurs));
+              }
+              client.close();
+            });
+          }
+        });
+      }
+    });
+  });
 
   // GESTION DES DONNEES LIEES AUX JOUEURS
   socket.on('joueur', function(data) {
@@ -95,20 +200,7 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('joueurAdverse', joueurAdverse);
   });
 
-  socket.on('choixTheme', function(data) {
-    socket.broadcast.emit('choixTheme', {message: 'Renvoi du thème ok'});
-  });
-  
-  socket.emit('enregistrementScore', scoreJoueurs);
-  socket.on('enregistrementScore', function(data) {
-    scoreJoueurs.push({
-      pseudo: data.pseudo,
-      score: data.score,
-      date: new Date()
-    });
-    socket.emit('enregistrementScore', scoreJoueurs);
-  });
-
+  // GESTION DE LA DECONNEXION D'UN CLIENT
   socket.on('disconnect', function() {
     console.log(chalk.magenta(`Déconnexion WebSocket avec : ` + socket.id));
   });

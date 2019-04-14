@@ -2,7 +2,7 @@
 
 var joueur = {
   pseudo: undefined,
-  avatar: undefined,
+  avatar: 'avatar' + Math.floor(Math.random() * 9),
   score: 0,
   progression: {
     questionEnCours: 1,
@@ -146,32 +146,3 @@ var quiz = {
 }
 
 var scoreJoueurs = [];
-
-window.addEventListener('DOMContentLoaded', function() {
-  var interfaceDuJeu = {
-    largeurBoutonMenuPrincipal: 1000,
-    hauteurBoutonMenuPrincipal: 200,
-    couleurBoutonMenuPrincipal: '#000',
-    creationBoutonMenuPrincipal: function(numeroBoutonMenuPrincipal) {
-      // DEFINITION DU NOM DE L'ATTRIBUT ID
-      var idBoutonMenuPrincipal = 'boutonMenuPrincipal' + numeroBoutonMenuPrincipal;
-  
-      // DESSIN DU BOUTON DANS LE CANVAS
-      var ctx = document.getElementById('boutonMenuPrincipal1').getContext('2d');
-      ctx.fillStyle = '#f00';
-      ctx.strokeStyle = '#0f0';
-      
-      ctx.beginPath();
-      ctx.lineWidth = 3;
-      ctx.moveTo(0,0);
-      ctx.lineTo(50, 0);
-      ctx.lineTo(50, 50);
-      ctx.lineTo(0, 50);
-      ctx.lineTo(0, 0);
-      ctx.fill();
-      ctx.stroke();
-      ctx.closePath();
-    }
-  }
-  // gameInterface.creationBoutonMenuPrincipal(1);
-}, false);
